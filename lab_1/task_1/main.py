@@ -1,7 +1,7 @@
 import filework
 import textwork
 import keyvalidate
-ALPHABET = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЭЮЯ"
+
 def main():
     """
     The main function
