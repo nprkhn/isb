@@ -1,2 +1,0 @@
-# requirements.txt
-# Все зависимости встроены в Python
