@@ -1,0 +1,11 @@
+    CPP:
+Frequency bitwise test: 0.595883
+Identical consecutive bits test: 0.741840
+Longest sequence of units test: 0.317145
+
+    Java:
+Frequency bitwise test: 0.157299
+Identical consecutive bits test: 0.369232
+Longest sequence of units test: 0.530195
+
+Вывод: каждая вероятность больше 0.01, следовательно данные последовательности можно считать случайно сгенерированными
