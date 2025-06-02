@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from filework import read_text_file
+from filework import read_text_file, write_in_binary_file, read_binary_file
 import os
 
 class SymmetricCrypto:
@@ -9,14 +9,10 @@ class SymmetricCrypto:
         Class attributes
         """
         self.key = None
-        self.encrypted_key = None
-        self.decrypted_key = None
-        self.encrypted_text = None
-        self.decrypted_text = None
     
-    def generate__key(self, key_size: int):
+    def generate_random_key(self, key_size: int, rand_key_path: str):
         """
-        Function, which generates symmetric key
+        Function, which generates random key
 
         :return: symmetric key
         """
@@ -24,13 +20,13 @@ class SymmetricCrypto:
             key = os.urandom(key_size)
 
             self.key = key
+            write_in_binary_file(rand_key_path, key)
 
-            return key
         else:
             print(key_size)
             raise ValueError("Key length must be 16, 24 or 32 bytes")
     
-    def encrypt_text(self, text_path: str):
+    def encrypt_text(self, text_path: str, encrypted_text_path: str):
         """
         Function, which encrypts text file
 
@@ -48,23 +44,20 @@ class SymmetricCrypto:
         encryptor = cipher.encryptor()
         c_text = iv + encryptor.update(padded_text) + encryptor.finalize()
 
-        self.encrypted_text = c_text
+        write_in_binary_file(encrypted_text_path, c_text)
 
-        return c_text
-    
-    def decrypt_text(self) -> bytes:
+    def decrypt_text(self, encrypted_text_path: str, decrypted_text_path: str):
         """
         Function, which decrypts encrypted text
 
         :return: decrypted text
         """
-        iv = self.encrypted_text[:16]
+        encrypted_text = read_binary_file(encrypted_text_path)
+        iv = encrypted_text[:16]
         cipher = Cipher(algorithms.Camellia(self.key), modes.CBC(iv))
         decryptor = cipher.decryptor()
-        decrypted_padded = decryptor.update(self.encrypted_text[16:]) + decryptor.finalize()
+        decrypted_padded = decryptor.update(encrypted_text[16:]) + decryptor.finalize()
         unpadder = padding.PKCS7(128).unpadder()
         decrypted_text = unpadder.update(decrypted_padded) + unpadder.finalize()
 
-        self.decrypted_text = decrypted_text
-
-        return decrypted_text
+        write_in_binary_file(decrypted_text_path, decrypted_text)

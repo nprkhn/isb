@@ -8,7 +8,7 @@ def encrypt_key(public_key, key):
         :param public_key: public key
         :param key: symmetric key
 
-        :return: encrypted text
+        :return: encrypted key
         """
         encrypted_key = public_key.encrypt(key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
 

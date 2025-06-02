@@ -1,10 +1,20 @@
-from assymetric import AsymmetricCrypto
+from assymetric import AsymmetricCrypto, symmetric
 from filework import write_in_binary_file, read_binary_file, read_binary_private_key_file
 from extra import encrypt_key, decrypt_key
-from symmetric import SymmetricCrypto
 
 class HybridCryptoSystem:
-    def generate_keys(encrypted_key_path, public_key_path, private_key_path, key_size):
+    def generate_random_key(key_size, rand_key_path):
+        """
+        Extra function for generating random key
+
+        :param key_size: key size
+        :param rand_key_path: path to file with random key
+        """
+        sym_crypto = symmetric.SymmetricCrypto()
+        sym_crypto.generate_random_key(key_size, rand_key_path)
+        print("Random key succesfully generated!")
+
+    def generate_keys(encrypted_key_path, public_key_path, private_key_path, key_path):
         """
         Function, which generates keys of hybrid crypto system
 
@@ -14,19 +24,17 @@ class HybridCryptoSystem:
         """
         print("\n=== Generation keys ===")
     
-        sym_crypto = SymmetricCrypto()
-        sym_key = sym_crypto.generate__key(key_size)
-        print("Symmetric key succesfully generated!")
-    
         asym_crypto = AsymmetricCrypto()
-        public_key, private_key = asym_crypto.generate_keys()
+        asym_crypto.generate_keys()
         asym_crypto.serialization_keys(public_key_path, private_key_path)
         print(f"Asymmetric keys saved in:\n- {public_key_path}\n- {private_key_path}")
+
+        key = read_binary_file(key_path)
     
-        encrypted_sym_key = encrypt_key(public_key, sym_key)
+        encrypted_sym_key = encrypt_key(asym_crypto.public_key, key)
         write_in_binary_file(encrypted_key_path, encrypted_sym_key)
 
-        print(f"Encrypted key saved in: {encrypted_key_path}")
+        print(f"Encrypted symmetric key saved in: {encrypted_key_path}")
 
     def encrypt_data(text_path, private_key_path, encrypted_key_path, output_path):
         """
@@ -39,18 +47,16 @@ class HybridCryptoSystem:
         """
         print("\n=== Encryption data ===")
     
-        asym_crypto = AsymmetricCrypto()
         private_key=read_binary_private_key_file(private_key_path)
 
         encrypted_sym_key = read_binary_file(encrypted_key_path)
     
         sym_key = decrypt_key(private_key, encrypted_sym_key)
     
-        sym_crypto = SymmetricCrypto()
+        sym_crypto = symmetric.SymmetricCrypto()
         sym_crypto.key = sym_key
     
-        encrypted_data = sym_crypto.encrypt_text(text_path)
-        write_in_binary_file(output_path, encrypted_data)
+        sym_crypto.encrypt_text(text_path, output_path)
         print(f"Encrypted data saved in: {output_path}")
 
     def decrypt_data(encrypted_path, private_key_path, encrypted_key_path, output_path):
@@ -64,22 +70,15 @@ class HybridCryptoSystem:
         """
         print("\n=== Decryption data ===")
     
-        asym_crypto = AsymmetricCrypto()
         private_key = read_binary_private_key_file(private_key_path)
 
         encrypted_sym_key = read_binary_file(encrypted_key_path)
     
         sym_key = decrypt_key(private_key, encrypted_sym_key)
     
-        sym_crypto = SymmetricCrypto()
+        sym_crypto = symmetric.SymmetricCrypto()
         sym_crypto.key = sym_key
-
-        sym_crypto.encrypted_text = read_binary_file(encrypted_path)
     
-        decrypted_data = sym_crypto.decrypt_text()
-
-        write_in_binary_file(output_path, decrypted_data)
+        sym_crypto.decrypt_text(encrypted_path, output_path)
 
         print(f"Decrypted data saved in: {output_path}")
-        print("\nDecrypted data:")
-        print(decrypted_data.decode('utf-8'))
